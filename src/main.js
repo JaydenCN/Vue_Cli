@@ -7,7 +7,12 @@ import './plugins/element.js'
 import './assets/css/global.css'
 import './assets/font/iconfont.css'
 // 配置请求的根路径
-axios.defaults.baseURL = 'http://182.92.226.143:8083/'
+axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
+// 将token装配到的请求头中
+axios.interceptors.request.use(config => {
+  config.headers.Authorization = window.sessionStorage.getItem('token')
+  return config
+})
 // 挂载到vue的全局对象上，所有模块都能通过this调用
 Vue.prototype.$http = axios
 Vue.config.productionTip = false

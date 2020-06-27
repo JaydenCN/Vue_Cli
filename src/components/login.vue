@@ -32,8 +32,8 @@ export default {
     return {
       // 登录表单的数据绑定
       form: {
-        userName: 'Jayden',
-        password: 'admin'
+        userName: 'admin',
+        password: '123456'
       },
       // 验证表单数据的合法性
       rules: {
@@ -56,15 +56,15 @@ export default {
       this.$refs.loginFormRef.validate(async valid => {
         if (valid) {
           // 验证通过
-          const qsData = qs.stringify({ userName: this.form.userName, password: this.form.password })
+          const qsData = qs.stringify({ username: this.form.userName, password: this.form.password })
           // 获取响应列表中的data赋值给res 解构赋值
           const { data: res } = await this.$http.post('login', qsData)
-          if (res.code === 200) {
-            this.$message.success({ message: res.message, center: true })
-            window.sessionStorage.setItem('token', res.token) // 存到本地浏览器会话存储中，关闭即消失
+          if (res.meta.status === 200) {
+            this.$message.success({ message: res.meta.msg, center: true })
+            window.sessionStorage.setItem('token', res.data.token) // 存到本地浏览器会话存储中，关闭即消失
             this.$router.push('/home')
           } else {
-            this.$message.error({ message: res.message, center: true })
+            this.$message.error({ message: res.meta.msg, center: true })
           }
         } else {
           // 警告信息
