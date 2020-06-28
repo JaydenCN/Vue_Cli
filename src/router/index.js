@@ -2,8 +2,14 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import login from '../components/login.vue'
 import home from '../components/home.vue'
+import welcome from '../components/welcome.vue'
+import users from '../components/users.vue'
 Vue.use(VueRouter)
-
+// 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 const router = new VueRouter({
   // 配置路由规则
   routes: [
@@ -11,7 +17,21 @@ const router = new VueRouter({
     { path: '/', redirect: '/login' },
     // 访问login的时候去找导入的login组件
     { path: '/login', component: login },
-    { path: '/home', component: home }
+    {
+      path: '/home',
+      component: home,
+      redirect: '/welcome',
+      children: [
+        {
+          path: '/welcome',
+          component: welcome
+        },
+        {
+          path: '/users',
+          component: users
+        }
+      ]
+    }
   ]
 })
 // 挂载路由导航守卫
@@ -28,4 +48,5 @@ router.beforeEach((to, from, next) => {
   // token存在就放行
   next()
 })
+
 export default router

@@ -3,7 +3,11 @@
     <!-- 头部区域 -->
     <el-header>
       <div class="titleDiv">
-        <img style="width:50px;height:50px; border-radius: 50%;background-color: #eee;" src="../assets/logo.png" alt="" />
+        <img
+          style="width:50px;height:50px; border-radius: 50%;background-color: #eee;"
+          src="../assets/logo.png"
+          alt
+        />
         <span class="span">电商后台管理系统</span>
       </div>
       <el-button type="info" @click="logout">退出</el-button>
@@ -11,21 +15,25 @@
     <!-- 页面主体区域 -->
     <el-container>
       <!-- 左侧导航 -->
-      <el-aside width="200px">
+      <el-aside :width="isCollapse?'64px':'200px'">
+        <div class="toggle-button" @click="toggle_button">|||</div>
         <!-- <el-radio-group v-model="isCollapse" style="margin-bottom: 20px;">
           <el-radio-button :label="false">展开</el-radio-button>
           <el-radio-button :label="true">收起</el-radio-button>
-        </el-radio-group> -->
+        </el-radio-group>-->
         <!-- 左边菜单 -->
+        <!-- collapse为true展开，false关闭  router开启菜单路由 default-active的值对应index值的时候字体会高亮-->
         <el-menu
-          default-active="1-4-1"
           background-color="#313743"
           text-color="#fff"
           active-text-color="#409BFF"
           class="el-menu-vertical-demo"
-          @open="handleOpen"
-          @close="handleClose"
           :collapse="isCollapse"
+          :unique-opened="true"
+          style="border-right: none;"
+          :collapse-transition="false"
+          :router="true"
+          :default-active="elmenu"
         >
           <!-- 一级菜单  v-for最好绑定一个唯一的key值 dom属性前面加一个：就可以使用vue的变量-->
           <el-submenu :index="item.id + ''" v-for="(item, i) in menuList" :key="item.id">
@@ -37,7 +45,12 @@
               <span slot="title">{{ item.authName }}</span>
             </template>
             <!-- 一级菜单的子菜单 二级菜单 -->
-            <el-menu-item :index="children.id + ''" v-for="children in item.children" :key="children.id">
+            <el-menu-item
+              :index="'/'+children.path"
+              v-for="children in item.children"
+              :key="children.id"
+              @click="saveNavState('/'+children.path)"
+            >
               <template slot="title">
                 <!-- 图标 -->
                 <i class="el-icon-menu"></i>
@@ -50,11 +63,13 @@
       </el-aside>
       <el-container>
         <!-- 内容主体区域 -->
-        <el-main>Main</el-main>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
         <!-- 顶部固定栏 -->
-        <el-footer style="height:30px;">
-          Jayden © &nbsp;&nbsp;&nbsp; 联系邮箱msgboxcn@163.com &nbsp;&nbsp;&nbsp; QQ:2479664280
-        </el-footer>
+        <el-footer
+          style="height:30px;"
+        >Jayden © &nbsp;&nbsp;&nbsp; 联系邮箱msgboxcn@163.com &nbsp;&nbsp;&nbsp; QQ:2479664280</el-footer>
       </el-container>
     </el-container>
   </el-container>
@@ -64,9 +79,11 @@ export default {
   // 页面加载就执行的函数
   created() {
     this.getMenuList()
+    this.elmenu = window.sessionStorage.getItem('menu')
   },
   data() {
     return {
+      elmenu: '',
       isCollapse: false,
       menuList: [],
       iconList: ['el-icon-setting', 'el-icon-cpu', 'el-icon-goods', 'el-icon-shopping-cart-1', 'el-icon-s-data']
@@ -76,6 +93,7 @@ export default {
     logout() {
       this.$message.success({ message: '退出成功!', center: true })
       window.sessionStorage.removeItem('token') // 移除会话中缓存的token
+      window.sessionStorage.removeItem('menu') // 移除会话中缓存的token
       this.$router.push('/login') // 跳转登录页
     },
     async getMenuList() {
@@ -84,19 +102,17 @@ export default {
       this.menuList = res.data
       console.log(res.data)
     },
-    handleOpen(key, keyPath) {
-      console.log(key, keyPath)
+    // 菜单折叠展开
+    toggle_button() {
+      this.isCollapse = !this.isCollapse
     },
-    handleClose(key, keyPath) {
-      console.log(key, keyPath)
+    saveNavState(obj) {
+      window.sessionStorage.setItem('menu', obj)
     }
   }
 }
 </script>
 <style>
-.el-menu {
-  width: 200px;
-}
 .home_container {
   height: 100%;
 }
@@ -127,5 +143,14 @@ export default {
 }
 .el-footer {
   text-align: center;
+}
+.toggle-button {
+  background-color: #2a4885;
+  font-size: 10px;
+  line-height: 24px;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.2em;
+  cursor: pointer;
 }
 </style>
